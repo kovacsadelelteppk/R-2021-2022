@@ -24,7 +24,6 @@ tt_data <- tt_load("2020-09-22")
 
 tt_data$expeditions
 expeditions <- tt_data$expeditions
-expeditions
 ```
 I took a look at my data
 ``` {r}
@@ -48,11 +47,11 @@ expeditions_to_plot <- expeditions %>%
 ```
 And lastly I have made the plot, using the given instructions
 ```{r}
-ggplot(expeditions_to_plot, aes(x=n, y=reorder (peak_name, n), fill=season)) +
+ggplot(expeditions_to_plot, aes(x = n, y = reorder (peak_name, n), fill = season)) +
   geom_col () +
   theme_light () +
   scale_fill_viridis_d() +
   labs (title = "The 15 most popular peaks stacked by season of expedition", x = "Number of expeditions", y = NULL) +
-  theme (legend.position ="bottom")
+  theme (legend.position = "bottom")
 ```
 
