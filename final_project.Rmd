@@ -19,7 +19,7 @@ The goal is to see what variables predict some attributes for different Sturbuck
 ### Packages
 I have loaded the necessary packages. I have came back here every time I needed an other one
 
-```{r, messages = FALSE}
+```{r, message=FALSE}
 library(tidyverse)
 library(corrplot)
 library(performance)
@@ -46,31 +46,26 @@ str(starbucks)
 
 Checking for any coding mistakes or extraordinary data mainly with graphs (pairing the variables and checking two at a time - also good for exploring any possible connection or correlation). Wherever I find an extreme outlier I check the variable type and will filter out if it does not make sense
 
-```{r, message = FALSE}
+```{r, message=FALSE}
 ggplot(starbucks, aes(x = serv_size_m_l, y = calories)) +
   geom_point () +
   geom_smooth(method = "lm", se = FALSE)
-```
-```{r, message = FALSE}
+
 ggplot(starbucks, aes(x = total_fat_g, y = saturated_fat_g)) +
   geom_point()
-```
-```{r, message = FALSE}
+
 ggplot(starbucks, aes(x = trans_fat_g, y = cholesterol_mg)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE)
-```
-```{r, message = FALSE}
+
 ggplot(starbucks, aes(x = sodium_mg, y = total_carbs_g)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE)
-```
-```{r, message = FALSE}
+
 ggplot(starbucks, aes(x = fiber_g, y = sugar_g)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE)
-```
-```{r, message = FALSE}
+
 ggplot(starbucks, aes(caffeine_mg, calories)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE)
@@ -150,23 +145,32 @@ As I have decided to work on finding out what makes a coffee with more calories,
 I am using independent sample t-test to see if coffees with shipped cream are more heavy in calories thank the ones without
 Nullhypothesis is that there is no difference, alternative hypothesis is that the whipped creamed have more calories
 
-I have a big enough data, but I am checking the normality anyway
+I am checking the normality
 
 ```{r}
 ggdensity(starbucks$calories, 
           main = "Density plot of calories",
           xlab = "Calories of coffees")
+ggplot(starbucks, aes(x = calories, fill = whip)) +
+  geom_histogram()
 ```
 
-It is a bit skewed, but I have a lot of data, so I am accepting it and moving to the model
+It seems skewed so I am running a Shapiro-Wilk test
+
+```{r}
+  shapiro.test(starbucks$calories)
+```
+
+The Shapiro-Wilk came back significant so I need to transfer my data
+
 I am calculating the model
 
 ```{r}
-whip_t_test <- t.test(calories ~ whip, data = starbucks)
+whip_t_test <- wilcox.test(calories ~ whip, data = starbucks)
 whip_t_test
 ```
 
-It seems like we have a significant difference in the calories of whipped and not whipped coffees. t(502.9) = -24.87, p < 0.001
+It seems like we have a significant difference in the calories of whipped and not whipped coffees. Z = 27426, p < 0.001
 
 I checked a boxplot to see graphically which coffees have more calories (although I can see the means above)
 
