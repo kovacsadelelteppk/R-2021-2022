@@ -301,18 +301,18 @@ I assume that bigger sizes have more caffeine but also more milk and sugar
 
 ### A plot about the calories of different sized and whipped coffees
 
-Lastly I wanted to see the relation between size, whipped cream and calories of coffees
+I wanted to see the relation between size, whipped cream and calories of coffees
 
 ```{r}
 starbucks_to_plot <- starbucks %>%
-  group_by(size, whip) %>%
-  count(calories)
+  group_by(size) %>%
+  count(mean(calories))
 
-ggplot(starbucks_to_plot, aes(x = reorder(size, calories), y = calories, fill = whip)) +
+ggplot(starbucks_to_plot, aes(x = reorder(size, -n), y = n)) +
   geom_col()  +
-  theme_light () +
-  scale_fill_viridis_d() +
-  labs (title = "Starbucks coffees by size, calories and whipped cream", x = "Size", y = "Calories") +
+  scale_colour_brewer()  +
+  theme_classic() +
+  labs (title = "Mean calories of Starbucks coffees by size", x = "Size", y = "Calories") +
   theme (legend.position ="bottom")
 ```
 
