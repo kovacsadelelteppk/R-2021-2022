@@ -282,7 +282,6 @@ model3 %>%
 ```
 
 The assumptions are met and I got a significant model (F(1110,4)=8704, p < 0.001), where all of the predictors are significant, even the caffeine (p < 0.001)
-I assume that bigger sizes have more caffeine but also more milk and sugar
 
 I am comparing the models without and with caffeine
 
@@ -292,6 +291,7 @@ compare
 ```
 
 Turns out that model3 with caffeine is a significantly better one that the model1 without it (F(1) = 24.51, p < 0.001)
+I assume that bigger sizes have more caffeine but also more milk and sugar
 
 ### A plot about the calories of different sized and whipped coffees
 
@@ -302,7 +302,7 @@ starbucks_to_plot <- starbucks %>%
   group_by(size, whip) %>%
   count(calories)
 
-ggplot(starbucks_to_plot, aes(x = fct_reorder(size, calories), y = calories, fill = whip)) +
+ggplot(starbucks_to_plot, aes(x = reorder(size, calories), y = calories, fill = whip)) +
   geom_col()  +
   theme_light () +
   scale_fill_viridis_d() +
