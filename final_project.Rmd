@@ -147,8 +147,8 @@ Just by taking a glance at the matrix, it seems that calories have the most conn
 
 As I have decided to work on finding out what makes a coffee with more calories, I would also like to see if it is true that whiped creamed beverages and bigger beverages have more calories
 
-I am using independt sample t-test to see if coffees with shipped cream are more heavy in calories thank the ones without
-Nullhypothesis is that there is no difference, alternative hypothisis is that the whipped creamed have more calories
+I am using independent sample t-test to see if coffees with shipped cream are more heavy in calories thank the ones without
+Nullhypothesis is that there is no difference, alternative hypothesis is that the whipped creamed have more calories
 
 I have a big enough data, but I am checking the normality anyway
 
@@ -225,12 +225,14 @@ I have produced a boxplot to visualize it
 ```{r}
 boxplot(calories ~ size, data = starbucks)
 ```
+
 ### Fitting a complex model to predict calories in a coffee
 
 Lastly I wanted to fit a complex model to predict calories in a coffee 
 I contained every variable that seemed to be correlated to calories
 
 First I built a less complex model (with obvious elements like sugar and whip) and checked the assumptions
+
 ```{r}
 model1 <- lm(calories ~ whip + sugar_g + total_fat_g, starbucks)
 summary(model1)
@@ -242,6 +244,7 @@ model1 %>%
   arrange(desc(.cooksd)) %>%
   head()
 ```
+
 Assumptions are not violated and I have a significant model where sugar, whipcream and total fat predicts the calorie of the drink (F(1111,3) = 1.136e+04, p < 0.001) and all three of the predictors are significant elements (p < 0.001)
 
 Next I built a model with total carbs to compare them. 
@@ -261,6 +264,7 @@ model2 %>%
 The model would be significant, but the collinearity assumption is violated: sugar and total carbs are correlated too highly, so I have to drop one of them and I am back to model 1
 
 I am looking an other model with caffeine in it, I think if I compare model 1 with model 3 with caffeine, then model1 should be better
+
 ```{r}
 model3 <- lm(calories ~ whip + sugar_g + total_fat_g + caffeine_mg, starbucks)
 summary(model3)
