@@ -210,18 +210,24 @@ Unfortunately they are significantly different
 I need to use non parametric or robust ways of ANOVA (I found a helpful article [here](https://dornsife.usc.edu/assets/sites/239/docs/WRS2.pdf))
 
 ```{r}
-starbucks_anova <- oneway.test(calories ~ size, data = starbucks, var.equal = FALSE)
+starbucks_anova <- kruskal.test(calories ~ size, data = starbucks)
 starbucks_anova
 ```
 
-I found a significant model (F(147.57,4)= 105.78, p < 0.001)
+I found a significant model (H(4) = 273.35 p < 0.001)
 
-To find out which groups differ from each other I have run a pairwise t-test with Bonferroni correction
+To find out which groups differ from each other I have run a robust pairwise t-test with Bonferroni correction
+It threw me an error saying _'x' must be numeric_ so I tried to change that, but was not successful (fct_recode error: _`f` must be a factor (or character vector)_)
+(To this I needed some research to see which size is bigger than the other)
 
 ```{r}
-pairwise.t.test('calories', 'size', data = starbucks, p.adj = "bonf")
+# pairwise.wilcox.test(starbucks$size, g = starbucks$calories)
 
-TukeyHSD(starbucks_anova, "size")
+#starbucks %>%
+#  fct_recode(size, short = "1", tall = "2", grande = "3", venti = "4", trenta = "5" ) %>%
+#  mutate(size = as.numeric(size))
+
+is.factor(starbucks$size)
 ```
 
 I have produced a boxplot to visualize it
