@@ -1,5 +1,5 @@
 ---
-title: "Final Project - Explring Starbucks database"
+title: "Final Project - Exploring Starbucks database"
 author: "Kovacs_Adel"
 date: "1/1/2022"
 output: html_document
@@ -273,7 +273,7 @@ summary(model3)
 check_model(model3)
 ```
 
-The assumptions are met and I got a significant model (F(1112,2)=316.6, p < 0.001), where all of the predictors are significant (p < 0.001).
+The assumptions are met and I got a significant model (F(1112,2)=316.6, p < 0.001), where all of the predictors are significant (p < 0.001). Adjusted R^2 is 0.362, meaning that my predictors explain 36% of the calories variances. 
 
 I am bulding a more complex model
 
@@ -283,7 +283,7 @@ summary(model4)
 check_model(model4)
 ```
 
-The assumptions are met again and I have a significant model (f(1111, 3) = 258.6, p < 0.001), where all service size, milk and fiber are significant (p < 0.001).
+The assumptions are met again and I have a significant model (f(1111, 3) = 258.6, p < 0.001), where all service size, milk and fiber are significant (p < 0.001). Adjusted R^2 got higher, now it is 41% explained of the calories variances. 
 
 I am comparing the models without and with caffeine.
 
