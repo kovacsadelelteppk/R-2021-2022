@@ -12,9 +12,11 @@ knitr::opts_chunk$set(echo = TRUE)
 # Kovacs Adel: Final Project
 ## PSZM21-MO-KUT-104:2	Komplex adatelemzési eljárások-Adatelemzés R-programnyelven
 
-I have choosen the Starbucks dataset from TidyTuesday
+I have choosen the Starbucks dataset from TidyTuesday.
 I like coffee and I know some basic things about it (like it has caffeine, you can add milk, you can have a more concentrated espresso or a "long one", an Americano), but I have seen some data that I am not very familiar with. 
-The goal is to see what variables predict some attributes for different Sturbucks beverages. 
+The goal is to see what variables predict some attributes for different Sturbucks beverages.
+
+![](https://c.tenor.com/B-JL90QOVIgAAAAC/starbucks.gif)
 
 ### Packages
 I have loaded the necessary packages. I have came back here every time I needed an other one
