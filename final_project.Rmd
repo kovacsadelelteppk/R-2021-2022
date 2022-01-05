@@ -125,6 +125,8 @@ str(starbucks_cor)
 
 correlations <- starbucks_cor %>%
   cor()
+
+correlations
 ```
 
 I am visulazing the correlations to see it better
@@ -150,7 +152,7 @@ Nullhypothesis is that there is no difference, alternative hypothesis is that th
 
 I am checking the normality
 
-```{r}
+```{r, message=FALSE}
 ggdensity(starbucks$calories, 
           main = "Density plot of calories",
           xlab = "Calories of coffees")
@@ -164,7 +166,7 @@ It seems skewed so I am running a Shapiro-Wilk test
   shapiro.test(starbucks$calories)
 ```
 
-The Shapiro-Wilk came back significant so I need to transfer my data
+The Shapiro-Wilk came back significant so I need a nonparametric test
 
 I am calculating the model with robust procedure
 
@@ -201,8 +203,10 @@ outlier
 
 I have found an outlier in size "trenta" which turned out to be a cold brewed coffee and it makes sense, since as far as I know it does not contain any milk or sugar, so I left it in the data
 
-I am checking the homogenity of variances as an assumption
+I am checking the homogenity of variances as an assumption.
+
 I would like them to be not significantly different (I have checked both the Levene's and the Bartlett)
+
 ```{r}
 leveneTest(calories ~size, starbucks)
 
@@ -210,7 +214,7 @@ bartlett.test(calories ~size, starbucks)
 ```
 
 Unfortunately they are significantly different
-I need to use non parametric or robust ways of ANOVA (I found a helpful article [here](https://dornsife.usc.edu/assets/sites/239/docs/WRS2.pdf))
+I need to use nonparametric or robust ways of ANOVA (I found a helpful article [here](https://dornsife.usc.edu/assets/sites/239/docs/WRS2.pdf))
 
 ```{r}
 starbucks_anova <- kruskal.test(calories ~ size, data = starbucks)
@@ -219,19 +223,13 @@ starbucks_anova
 
 I found a significant model (H(4) = 273.35, p < 0.001)
 
-To find out which groups differ from each other I have run a robust pairwise t-test with Bonferroni correction.
-It threw me an error saying _'x' must be numeric_ so I tried to change that, but was not successful (fct_recode error: _`f` must be a factor (or character vector)_)
-(To this I needed some research to see which size is bigger than the other)
+To find out which groups differ from each other I have run a  pairwise t-test with Bonferroni correction.
 
 ```{r}
-# pairwise.wilcox.test(starbucks$size, g = starbucks$calories)
-
-#starbucks %>%
-#  fct_recode(size, short = "1", tall = "2", grande = "3", venti = "4", trenta = "5" ) %>%
-#  mutate(size = as.numeric(size))
-
-is.factor(starbucks$size)
+pairwise.t.test(starbucks$calories, starbucks$size, p.adj = "bonf")
 ```
+
+It looks like short and grande, tall and grande, tall and short are different in calories. Also venti versus every else size are different. (each p < 0.001). Trenta only differs from venti. 
 
 I have produced a boxplot to visualize it
 
@@ -244,7 +242,7 @@ boxplot(calories ~ size, data = starbucks)
 Lastly I wanted to fit a complex model to predict calories in a coffee. 
 I contained every variable that seemed to be correlated to calories.
 
-First I built a less complex model (with obvious elements like sugar and whip) and checked the assumptions
+First I built a less complex model (with obvious elements like sugar and whip) and checked the assumptions.
 
 ```{r}
 model1 <- lm(calories ~ whip + sugar_g + total_fat_g, starbucks)
@@ -258,49 +256,43 @@ model1 %>%
   head()
 ```
 
-Assumptions are not violated and I have a significant model where sugar, whipcream and total fat predicts the calorie of the drink (F(1111,3) = 1.136e+04, p < 0.001) and all three of the predictors are significant elements (p < 0.001).
+Althought independent variables does not correlate highly, we know from the correlation matrix, that they do correlate with calories (dependent variable). If it wouldn't I would compare this with the following more complex model:
 
-Next I built a model with total carbs to compare them. 
 
 ```{r}
 model2 <- lm(calories ~ whip + sugar_g + total_fat_g + total_carbs_g, starbucks)
-summary(model2)
-
-check_model
-
-model2 %>%
-  augment() %>%
-  arrange(desc(.cooksd)) %>%
-  head()
 ```
 
-The model would be significant, but the collinearity assumption is violated: sugar and total carbs are correlated too highly, so I have to drop one of them and I am back to model 1.
+I am looking for variables that are not too highly correlated with calories. 
 
-I am looking an other model with caffeine in it, I think if I compare model 1 with model 3 with caffeine, then model1 should be better.
+First a simple model
 
 ```{r}
-model3 <- lm(calories ~ whip + sugar_g + total_fat_g + caffeine_mg, starbucks)
+model3 <- lm(calories ~ milk + serv_size_m_l, starbucks)
 summary(model3)
-
 check_model(model3)
-
-model3 %>%
-  augment() %>%
-  arrange(desc(.cooksd)) %>%
-  head()
 ```
 
-The assumptions are met and I got a significant model (F(1110,4)=8704, p < 0.001), where all of the predictors are significant, even the caffeine (p < 0.001).
+The assumptions are met and I got a significant model (F(1112,2)=316.6, p < 0.001), where all of the predictors are significant (p < 0.001).
+
+I am bulding a more complex model
+
+```{r}
+model4 <- lm(calories ~ milk + serv_size_m_l + fiber_g, starbucks)
+summary(model4)
+check_model(model4)
+```
+
+The assumptions are met again and I have a significant model (f(1111, 3) = 258.6, p < 0.001), where all service size, milk and fiber are significant (p < 0.001).
 
 I am comparing the models without and with caffeine.
 
 ```{r}
-compare <- anova(model1, model3)
+compare <- anova(model3, model4)
 compare
 ```
 
-Turns out that model3 with caffeine is a significantly better one that the model1 without it (F(1) = 24.51, p < 0.001)
-I assume that bigger sizes have more caffeine but also more milk and sugar.
+Turns out that model4 with fiber in it is a significantly better choice to predict calories in a coffe. (F(1) = 91.208, p < 0.001)
 
 ### A plot about the calories of different sized and whipped coffees
 
@@ -320,7 +312,7 @@ ggplot(starbucks2, aes(x = reorder (size, -mean_cal), y = mean_cal, fill = whip)
   theme (legend.position ="bottom")
 ```
 
-It is interesting, because with the t-test I saw that whipped coffees have more calories, but here in subgroups it is not that obvious
+It is interesting, because with the t-test I saw that whipped coffees have more calories, but here in subgroups it is not that obvious.
 
 I have also made a plot about average calories in different sized Starbucks drinks
 
@@ -330,8 +322,8 @@ starbucks_to_plot <- starbucks %>%
   count(mean(calories))
 
 ggplot(starbucks_to_plot, aes(x = reorder(size, -n), y = n, fill = size)) +
-  geom_col(position = "dodge") +
-  scale_fill_brewer () +
-  theme (legend.position = "None") +
-  labs (title = "Mean calories of Starbucks coffees by size", x = "Size", y = "Calories")
+  geom_col() +
+  scale_fill_brewer() +
+  theme(legend.position = "None") +
+  labs(title = "Mean calories of Starbucks coffees by size", x = "Size", y = "Calories")
 ```
