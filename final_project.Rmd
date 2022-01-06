@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## PSZM21-MO-KUT-104:2	Komplex adatelemzési eljárások-Adatelemzés R-programnyelven
 
 I have choosen the Starbucks dataset from TidyTuesday.
-I like coffee and I know some basic things about it (like it has caffeine, you can add milk, you can have a more concentrated espresso or a "long one", an Americano), but I have seen some data that I am not very familiar with. 
+I like coffee and I know some basic things about it (like it has caffeine in it, you can add milk, you can have a more concentrated espresso or a "long one", an Americano), but I have seen some data that I am not very familiar with. 
 The goal is to see what variables predict some attributes for different Sturbucks beverages.
 
 ![](https://c.tenor.com/B-JL90QOVIgAAAAC/starbucks.gif)
@@ -181,14 +181,24 @@ I checked a boxplot to see graphically which coffees have more calories
 
 ```{r}
 plot(calories ~ whip, data = starbucks)
+
+starbucks %>%
+  filter(whip == "yes") %>%
+  count(mean(calories))
+
+starbucks %>%
+  filter(whip == "no") %>%
+  count(mean(calories))
 ```
 
 It is the whipped, so we can state that coffees with whipped cream contain more calories (mean = 371.22 vs. mean of the no whipped cream coffees = 188.54)
 
 Now I take a look at the size of a coffee related to its calories
 I am bulding a one-way ANOVA model to find out if there are any differences between the groups, and first I check the assumptions
-My nullhypothesis is that there are no differences
-My alternative hypothesis is that there are differences
+
+My **nullhypothesis is that there are no differences**
+
+My **alternative hypothesis is that there are differences**
 
 Checking for outliers graphically
 
@@ -213,7 +223,8 @@ leveneTest(calories ~size, starbucks)
 bartlett.test(calories ~size, starbucks)
 ```
 
-Unfortunately they are significantly different
+Unfortunately they are significantly different, as the Levene's Test shows (F(1110,4) = 33.788, p < 0.001)
+
 I need to use nonparametric or robust ways of ANOVA (I found a helpful article [here](https://dornsife.usc.edu/assets/sites/239/docs/WRS2.pdf))
 
 ```{r}
@@ -240,9 +251,9 @@ boxplot(calories ~ size, data = starbucks)
 ### Fitting a complex model to predict calories in a coffee
 
 Lastly I wanted to fit a complex model to predict calories in a coffee. 
-I contained every variable that seemed to be correlated to calories.
+I contained a few obvious variables.
 
-First I built a less complex model (with obvious elements like sugar and whip) and checked the assumptions.
+First I built a less complex model (with most obvious elements like sugar and whip) and checked the assumptions.
 
 ```{r}
 model1 <- lm(calories ~ whip + sugar_g + total_fat_g, starbucks)
@@ -283,7 +294,7 @@ summary(model4)
 check_model(model4)
 ```
 
-The assumptions are met again and I have a significant model (f(1111, 3) = 258.6, p < 0.001), where all service size, milk and fiber are significant (p < 0.001). Adjusted R^2 got higher, now it is 41% explained of the calories variances. 
+The assumptions are met again and I have a significant model (F(1111, 3) = 258.6, p < 0.001), where all service size, milk and fiber are significant (p < 0.001). Adjusted R^2 got higher, now it is 41% explained of the calories variances. 
 
 I am comparing the models without and with caffeine.
 
@@ -300,19 +311,16 @@ I wanted to see the relation between size, whipped cream and calories of coffees
 
 ```{r}
 starbucks2 <- starbucks %>%
-  add_count(calories) %>%
   group_by(size, whip) %>%
-  mutate(mean_cal = mean(n))
+  mutate(mean_cal = mean(calories))
 
 ggplot(starbucks2, aes(x = reorder (size, -mean_cal), y = mean_cal, fill = whip)) +
   geom_col(position = "dodge") +
-  scale_fill_brewer() +
+  scale_fill_brewer(name = "Is there whip in it?") +
   theme_classic() +
   labs (title = "Mean calories of Starbucks coffees by size and whipcream", x = "Size", y = "Calories") +
   theme (legend.position ="bottom")
 ```
-
-It is interesting, because with the t-test I saw that whipped coffees have more calories, but here in subgroups it is not that obvious.
 
 I have also made a plot about average calories in different sized Starbucks drinks
 
